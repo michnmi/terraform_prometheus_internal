@@ -30,14 +30,14 @@ resource "libvirt_volume" "prometheus" {
 resource "libvirt_domain" "prometheus" {
   provider  = libvirt.vmhost01
   name      = "prometheus_${var.env}"
-  memory    = "256"
-  vcpu      = 1
+  memory    = "512"
+  vcpu      = 2
   autostart = true
 
   // The MAC here is given an IP through mikrotik
   network_interface {
     macvtap  = "enp0s25"
-    mac      = "52:54:00:EA:17:60"
+    mac      = "52:54:00:EA:18:60"
     hostname = "prometheus_${var.env}"
   }
 
