@@ -12,7 +12,6 @@ provider "libvirt" {
   alias = "vmhost01"
   uri   = "qemu+ssh://jenkins_automation@vmhost01/system?keyfile=../id_ed25519_jenkins"
   // uri   = "qemu+ssh://vmhost01/system"
-
 }
 
 variable "env" {
@@ -21,7 +20,7 @@ variable "env" {
 
 resource "libvirt_volume" "prometheus" {
   provider         = libvirt.vmhost01
-  name             = "prometheus-${var.env}.qcow2"
+  name             = "prometheus_${var.env}.qcow2"
   pool             = var.env
   base_volume_name = "prometheus_base.qcow2"
   format           = "qcow2"
@@ -30,7 +29,7 @@ resource "libvirt_volume" "prometheus" {
 
 resource "libvirt_domain" "prometheus" {
   provider  = libvirt.vmhost01
-  name      = "prometheus-${var.env}"
+  name      = "prometheus_${var.env}"
   memory    = "512"
   vcpu      = 1
   autostart = true
@@ -39,7 +38,7 @@ resource "libvirt_domain" "prometheus" {
   network_interface {
     macvtap  = "enp0s25"
     mac      = "52:54:00:EA:17:60"
-    hostname = "prometheus-${var.env}"
+    hostname = "prometheus_${var.env}"
   }
 
   network_interface {
