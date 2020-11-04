@@ -36,8 +36,8 @@ resource "libvirt_volume" "prometheus" {
 resource "libvirt_domain" "prometheus" {
   provider  = libvirt.vmhost02
   name      = "prometheus_${var.env}"
-  memory    = "256"
-  vcpu      = 1
+  memory    = "512"
+  vcpu      = 2
   autostart = true
 
   // The MAC here is given an IP through mikrotik
