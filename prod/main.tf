@@ -30,7 +30,7 @@ resource "libvirt_volume" "prometheus" {
 resource "libvirt_domain" "prometheus" {
   provider  = libvirt.vmhost01
   name      = "prometheus_${var.env}"
-  memory    = "768"
+  memory    = "960"
   vcpu      = 2
   autostart = true
 
