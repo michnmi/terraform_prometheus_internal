@@ -3,7 +3,7 @@ terraform {
   required_providers {
     libvirt = {
       source  = "dmacvicar/libvirt"
-      version = "~>0.6"
+      version = "~>0.8"
     }
   }
 }
@@ -11,7 +11,7 @@ terraform {
 provider "libvirt" {
   alias = "vmhost01"
   uri   = "qemu+ssh://jenkins_automation@vmhost01/system?keyfile=../id_ed25519_jenkins"
-  # uri   = "qemu+ssh://vmhost01/system"
+  # uri = "qemu+ssh://vmhost01/system"
 }
 
 provider "libvirt" {
@@ -66,6 +66,49 @@ resource "libvirt_domain" "prometheus" {
     type        = "pty"
     target_type = "serial"
     target_port = 0
+  }
+
+  xml {
+    xslt = <<EOF
+  <?xml version="1.0" ?>
+  <xsl:stylesheet version="1.0"
+                  xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+    <xsl:output omit-xml-declaration="yes" indent="yes" />
+    <xsl:template match="node()|@*">
+       <xsl:copy>
+         <xsl:apply-templates select="node()|@*"/>
+       </xsl:copy>
+    </xsl:template>
+
+    <xsl:template match="/domain">
+      <xsl:copy>
+        <xsl:apply-templates select="@*"/>
+        <xsl:apply-templates select="node()"/>
+        <memoryBacking>
+          <access mode='shared'/>
+        </memoryBacking>
+      </xsl:copy>
+    </xsl:template>
+
+    <xsl:template match="/domain/devices">
+      <xsl:copy>
+        <xsl:apply-templates select="@*"/>
+        <xsl:apply-templates select="node()"/>
+        <filesystem type='mount' accessmode='passthrough'>
+          <driver type='virtiofs'/>
+          <binary path='/usr/lib/qemu/virtiofsd'/>
+          <source dir='/zpools/data_disk/prometheus-test'/>
+          <target dir='prometheus-data'/>
+          <address type='pci' domain='0x0000' bus='0x00' slot='0x09' function='0x0'/>
+        </filesystem>
+      </xsl:copy>
+    </xsl:template>
+  </xsl:stylesheet>
+EOF
+  }
+
+  lifecycle {
+    ignore_changes = [xml,filesystem]
   }
 
 }
